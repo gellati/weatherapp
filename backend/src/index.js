@@ -1,3 +1,4 @@
+require('dotenv').config()
 const debug = require('debug')('weathermap');
 
 const Koa = require('koa');
@@ -15,23 +16,22 @@ const app = new Koa();
 
 app.use(cors());
 
-const fetchWeather = async () => {
-  const endpoint = `${mapURI}/weather?q=${targetCity}&appid=${appId}&`;
-  const response = await fetch(endpoint);
+const endpoint = `${mapURI}/weather?q=${targetCity}&appid=${appId}&`;
 
-  return response ? response.json() : {}
-};
-
-router.get('/api/weather', async ctx => {
-  const weatherData = await fetchWeather();
-
-  ctx.type = 'application/json; charset=utf-8';
-  ctx.body = weatherData.weather ? weatherData.weather[0] : {};
-});
+fetch(endpoint)
+  .then(response => {
+    response.json().then(weatherData => {
+      router.get('/api/weather', (ctx, next) => {
+        ctx.type = 'application/json; charset=utf-8';
+        ctx.body = weatherData.weather ? weatherData.weather[0] : {};
+      });
+    });
+  })
+  .catch(error => {
+  });
 
 app.use(router.routes());
 app.use(router.allowedMethods());
-
 app.listen(port);
 
 console.log(`App listening on port ${port}`);
