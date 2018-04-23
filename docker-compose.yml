@@ -3,6 +3,8 @@ services:
   frontend:
     container_name: weatherapp_frontend
     build: ./frontend
+    volumes:
+      - ./frontend:/usr/src/app
     ports:
       - "8000:8000"
     depends_on:
@@ -10,5 +12,7 @@ services:
   backend:
     container_name: weatherapp_backend
     build: ./backend
+    volumes:
+      - ./backend:/usr/src/app
     ports:
       - "9000:9000"
