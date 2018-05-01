@@ -8,7 +8,6 @@ const cors = require('kcors');
 
 const appId = process.env.APPID || '';
 const mapURI = process.env.MAP_ENDPOINT || 'http://api.openweathermap.org/data/2.5';
-const targetCity = process.env.TARGET_CITY || 'Helsinki,fi';
 
 const port = process.env.PORT || 9000;
 
@@ -16,20 +15,18 @@ const app = new Koa();
 
 app.use(cors());
 
-const endpoint = `${mapURI}/weather?q=${targetCity}&appid=${appId}&`;
+router.get('/api/weather', getWeatherData);
 
-fetch(endpoint)
-  .then(response => {
-    response.json().then(weatherData => {
-      router.get('/api/weather', (ctx, next) => {
-        ctx.type = 'application/json; charset=utf-8';
-        ctx.body = weatherData.weather ? weatherData.weather[0] : {};
-      });
+function getWeatherData (ctx, next) {
+  const lat = ctx.query.lat;
+  const lon = ctx.query.lon;
+  const endpoint = `${mapURI}/weather?lat=${lat}&lon=${lon}&appid=${appId}&`;
+  return fetch(endpoint)
+    .then((resp) => resp.json())
+    .then(function (data) {
+      ctx.body = data;
     });
-  })
-  .catch(error => {
-    throw new Error(error.stack);
-  });
+}
 
 app.use(router.routes());
 app.use(router.allowedMethods());

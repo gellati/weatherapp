@@ -3,14 +3,10 @@ import ReactDOM from 'react-dom';
 
 const baseURL = process.env.ENDPOINT;
 
-const getWeatherFromApi = async () => {
-  try {
-    const response = await fetch(`${baseURL}/weather`);
-    return (response.ok ? response.json() : {});
-  } catch (error) {
-    throw new Error(error.stack);
-  }
-};
+async function getWeatherData(endpoint) {
+  const response = await fetch(endpoint);
+  return response.json();
+}
 
 class Weather extends React.Component {
   constructor(props) {
@@ -21,14 +17,24 @@ class Weather extends React.Component {
     };
   }
 
-  async componentWillMount() {
-    const weather = await getWeatherFromApi();
-    this.setState({ icon: weather.icon.slice(0, -1) });
+  componentDidMount() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const endpoint = `${baseURL}/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
+        getWeatherData(endpoint)
+          .then((data) => {
+            this.setIcon(data.weather[0].icon.slice(0, -1));
+          });
+      });
+    }
+  }
+
+  setIcon(icon) {
+    this.setState({ icon });
   }
 
   render() {
     const { icon } = this.state;
-
     return (
       <div className="icon">
         { icon && <img src={`/img/${icon}.svg`} alt="weather icon" /> }

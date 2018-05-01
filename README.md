@@ -51,3 +51,6 @@ Both the backend and the frontend can be started with the `docker-compose.yml` s
 
 in the directory where the `docker-compose.yml` file is located.
 
+### Geolocation
+
+The application uses geolocation to provide the weather in the are where the browser is used. A pop up window asks the user for permission to provide geolocation information, and if permission is given, the weather is shown.
